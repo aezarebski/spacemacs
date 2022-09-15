@@ -867,52 +867,52 @@ REAL-WIDTH: the real width of the line.  If the line contains an image, the size
 (defun spacemacs-buffer//insert-buttons ()
   "Create and insert the interactive buttons under Spacemacs banner."
   (goto-char (point-max))
-  (spacemacs-buffer||add-shortcut "m" "[?]" t)
-  (widget-create 'url-link
-                 :tag (propertize "?" 'face 'font-lock-doc-face)
-                 :help-echo "Open the quickhelp."
-                 :action (lambda (&rest ignore)
-                           (spacemacs-buffer/toggle-note 'quickhelp))
-                 :mouse-face 'highlight
-                 :follow-link "\C-m")
-  (insert " ")
-  (widget-create 'url-link
-                 :tag (propertize "Homepage" 'face 'font-lock-keyword-face)
-                 :help-echo "Open the Spacemacs GitHub page in your browser."
-                 :mouse-face 'highlight
-                 :follow-link "\C-m"
-                 "http://spacemacs.org")
-  (insert " ")
-  (widget-create 'url-link
-                 :tag (propertize "Documentation" 'face 'font-lock-keyword-face)
-                 :help-echo "Open the Spacemacs documentation in your browser."
-                 :mouse-face 'highlight
-                 :follow-link "\C-m"
-                 "http://spacemacs.org/doc/DOCUMENTATION.html")
-  (insert " ")
-  (widget-create 'url-link
-                 :tag (propertize "Gitter Chat" 'face 'font-lock-keyword-face)
-                 :help-echo
-                 "Ask questions and chat with fellow users in our chat room."
-                 :mouse-face 'highlight
-                 :follow-link "\C-m"
-                 "https://gitter.im/syl20bnr/spacemacs")
-  (insert " ")
-  (widget-create 'push-button
-                 :help-echo "GPLv3 copying conditions."
-                 :action (lambda (&rest ignore)
-                           (find-file (concat spacemacs-start-directory "LICENSE"))
-                           (read-only-mode))
-                 :mouse-face 'highlight
-                 :follow-link "\C-m"
-                 (propertize "Licensing" 'face 'font-lock-keyword-face))
-  (let ((len (- (line-end-position)
-                (line-beginning-position))))
-    (spacemacs-buffer//center-line)
-    (setq spacemacs-buffer--buttons-position (- (line-end-position)
-                                              (line-beginning-position)
-                                              len)))
-  (insert "\n")
+  ;; (spacemacs-buffer||add-shortcut "m" "[?]" t)
+  ;; (widget-create 'url-link
+  ;;                :tag (propertize "?" 'face 'font-lock-doc-face)
+  ;;                :help-echo "Open the quickhelp."
+  ;;                :action (lambda (&rest ignore)
+  ;;                          (spacemacs-buffer/toggle-note 'quickhelp))
+  ;;                :mouse-face 'highlight
+  ;;                :follow-link "\C-m")
+  ;; (insert " ")
+  ;; (widget-create 'url-link
+  ;;                :tag (propertize "Homepage" 'face 'font-lock-keyword-face)
+  ;;                :help-echo "Open the Spacemacs GitHub page in your browser."
+  ;;                :mouse-face 'highlight
+  ;;                :follow-link "\C-m"
+  ;;                "http://spacemacs.org")
+  ;; (insert " ")
+  ;; (widget-create 'url-link
+  ;;                :tag (propertize "Documentation" 'face 'font-lock-keyword-face)
+  ;;                :help-echo "Open the Spacemacs documentation in your browser."
+  ;;                :mouse-face 'highlight
+  ;;                :follow-link "\C-m"
+  ;;                "http://spacemacs.org/doc/DOCUMENTATION.html")
+  ;; (insert " ")
+  ;; (widget-create 'url-link
+  ;;                :tag (propertize "Gitter Chat" 'face 'font-lock-keyword-face)
+  ;;                :help-echo
+  ;;                "Ask questions and chat with fellow users in our chat room."
+  ;;                :mouse-face 'highlight
+  ;;                :follow-link "\C-m"
+  ;;                "https://gitter.im/syl20bnr/spacemacs")
+  ;; (insert " ")
+  ;; (widget-create 'push-button
+  ;;                :help-echo "GPLv3 copying conditions."
+  ;;                :action (lambda (&rest ignore)
+  ;;                          (find-file (concat spacemacs-start-directory "LICENSE"))
+  ;;                          (read-only-mode))
+  ;;                :mouse-face 'highlight
+  ;;                :follow-link "\C-m"
+  ;;                (propertize "Licensing" 'face 'font-lock-keyword-face))
+  ;; (let ((len (- (line-end-position)
+  ;;               (line-beginning-position))))
+  ;;   (spacemacs-buffer//center-line)
+  ;;   (setq spacemacs-buffer--buttons-position (- (line-end-position)
+  ;;                                             (line-beginning-position)
+  ;;                                             len)))
+  ;; (insert "\n")
   (widget-create 'push-button
                  :help-echo "Update all ELPA packages to the latest versions."
                  :action (lambda (&rest ignore)
@@ -931,32 +931,32 @@ REAL-WIDTH: the real width of the line.  If the line contains an image, the size
                  (propertize "Rollback Package Update"
                              'face 'font-lock-keyword-face))
   (spacemacs-buffer//center-line)
-  (insert "\n")
-  (widget-create 'push-button
-                 :tag (propertize "Release Notes"
-                                  'face 'font-lock-preprocessor-face)
-                 :help-echo "Hide or show the Changelog"
-                 :action (lambda (&rest ignore)
-                           (spacemacs-buffer/toggle-note 'release-note))
-                 :mouse-face 'highlight
-                 :follow-link "\C-m")
-  (insert " ")
-  (widget-create 'url-link
-                 :tag (propertize "Search in Spacemacs"
-                                  'face 'font-lock-function-name-face)
-                 :help-echo "Search Spacemacs contents."
-                 :action
-                 (lambda (&rest ignore)
-                   (let ((comp-frontend
-                          (cond
-                           ((configuration-layer/layer-used-p 'helm)
-                            'helm-spacemacs-help)
-                           ((configuration-layer/layer-used-p 'ivy)
-                            'ivy-spacemacs-help))))
-                     (call-interactively comp-frontend)))
-                 :mouse-face 'highlight
-                 :follow-link "\C-m")
-  (spacemacs-buffer//center-line)
+  ;; (insert "\n")
+  ;; (widget-create 'push-button
+  ;;                :tag (propertize "Release Notes"
+  ;;                                 'face 'font-lock-preprocessor-face)
+  ;;                :help-echo "Hide or show the Changelog"
+  ;;                :action (lambda (&rest ignore)
+  ;;                          (spacemacs-buffer/toggle-note 'release-note))
+  ;;                :mouse-face 'highlight
+  ;;                :follow-link "\C-m")
+  ;; (insert " ")
+  ;; (widget-create 'url-link
+  ;;                :tag (propertize "Search in Spacemacs"
+  ;;                                 'face 'font-lock-function-name-face)
+  ;;                :help-echo "Search Spacemacs contents."
+  ;;                :action
+  ;;                (lambda (&rest ignore)
+  ;;                  (let ((comp-frontend
+  ;;                         (cond
+  ;;                          ((configuration-layer/layer-used-p 'helm)
+  ;;                           'helm-spacemacs-help)
+  ;;                          ((configuration-layer/layer-used-p 'ivy)
+  ;;                           'ivy-spacemacs-help))))
+  ;;                    (call-interactively comp-frontend)))
+  ;;                :mouse-face 'highlight
+  ;;                :follow-link "\C-m")
+  ;; (spacemacs-buffer//center-line)
   (insert "\n"))
 
 (defun spacemacs-buffer//insert-string-list (list-display-name list)
