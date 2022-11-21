@@ -83,8 +83,10 @@
         "pe" 'projectile-edit-dir-locals
         "pf" 'projectile-find-file
         "pF" 'projectile-find-file-dwim
+        "pE" 'projectile-find-references
         "pg" 'projectile-find-tag
         "pG" 'projectile-regenerate-tags
+        "pi" 'projectile-install-project
         "pI" 'projectile-invalidate-cache
         "pk" 'projectile-kill-buffers
         "pp" 'projectile-switch-project
