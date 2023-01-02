@@ -122,7 +122,7 @@ It's cleared when the idle timer runs.")
       (define-key map (kbd "8") 'spacemacs-buffer/jump-to-number-startup-list-line)
       (define-key map (kbd "9") 'spacemacs-buffer/jump-to-number-startup-list-line))
 
-    (define-key map [down-mouse-1] 'widget-button-click)
+    (define-key map [mouse-1] 'widget-button-click)
     (define-key map (kbd "RET") 'spacemacs-buffer/return)
 
     (define-key map [tab] 'widget-forward)
@@ -270,7 +270,7 @@ Returns height in units of line height with a minimum of 1."
           (let ((icons dotspacemacs-startup-buffer-show-icons)
                 lines)
             (setq dotspacemacs-startup-buffer-show-icons nil)
-	          (setq lines (with-temp-buffer
+            (setq lines (with-temp-buffer
                           (spacemacs-buffer//do-insert-startupify-lists)
                           (recentf-mode -1)
                           (line-number-at-pos)))
@@ -865,52 +865,52 @@ REAL-WIDTH: the real width of the line.  If the line contains an image, the size
 (defun spacemacs-buffer//insert-buttons ()
   "Create and insert the interactive buttons under Spacemacs banner."
   (goto-char (point-max))
-  ;; (spacemacs-buffer||add-shortcut "m" "[?]" t)
-  ;; (widget-create 'url-link
-  ;;                :tag (propertize "?" 'face 'font-lock-doc-face)
-  ;;                :help-echo "Open the quickhelp."
-  ;;                :action (lambda (&rest ignore)
-  ;;                          (spacemacs-buffer/toggle-note 'quickhelp))
-  ;;                :mouse-face 'highlight
-  ;;                :follow-link "\C-m")
-  ;; (insert " ")
-  ;; (widget-create 'url-link
-  ;;                :tag (propertize "Homepage" 'face 'font-lock-keyword-face)
-  ;;                :help-echo "Open the Spacemacs GitHub page in your browser."
-  ;;                :mouse-face 'highlight
-  ;;                :follow-link "\C-m"
-  ;;                "http://spacemacs.org")
-  ;; (insert " ")
-  ;; (widget-create 'url-link
-  ;;                :tag (propertize "Documentation" 'face 'font-lock-keyword-face)
-  ;;                :help-echo "Open the Spacemacs documentation in your browser."
-  ;;                :mouse-face 'highlight
-  ;;                :follow-link "\C-m"
-  ;;                "http://spacemacs.org/doc/DOCUMENTATION.html")
-  ;; (insert " ")
-  ;; (widget-create 'url-link
-  ;;                :tag (propertize "Gitter Chat" 'face 'font-lock-keyword-face)
-  ;;                :help-echo
-  ;;                "Ask questions and chat with fellow users in our chat room."
-  ;;                :mouse-face 'highlight
-  ;;                :follow-link "\C-m"
-  ;;                "https://gitter.im/syl20bnr/spacemacs")
-  ;; (insert " ")
-  ;; (widget-create 'push-button
-  ;;                :help-echo "GPLv3 copying conditions."
-  ;;                :action (lambda (&rest ignore)
-  ;;                          (find-file (concat spacemacs-start-directory "LICENSE"))
-  ;;                          (read-only-mode))
-  ;;                :mouse-face 'highlight
-  ;;                :follow-link "\C-m"
-  ;;                (propertize "Licensing" 'face 'font-lock-keyword-face))
-  ;; (let ((len (- (line-end-position)
-  ;;               (line-beginning-position))))
-  ;;   (spacemacs-buffer//center-line)
-  ;;   (setq spacemacs-buffer--buttons-position (- (line-end-position)
-  ;;                                             (line-beginning-position)
-  ;;                                             len)))
-  ;; (insert "\n")
+  (spacemacs-buffer||add-shortcut "m" "[?]" t)
+  (widget-create 'url-link
+                 :tag (propertize "?" 'face 'font-lock-doc-face)
+                 :help-echo "Open the quickhelp."
+                 :action (lambda (&rest ignore)
+                           (spacemacs-buffer/toggle-note 'quickhelp))
+                 :mouse-face 'highlight
+                 :follow-link "\C-m")
+  (insert " ")
+  (widget-create 'url-link
+                 :tag (propertize "Homepage" 'face 'font-lock-keyword-face)
+                 :help-echo "Open the Spacemacs GitHub page in your browser."
+                 :mouse-face 'highlight
+                 :follow-link "\C-m"
+                 "https://develop.spacemacs.org")
+  (insert " ")
+  (widget-create 'url-link
+                 :tag (propertize "Documentation" 'face 'font-lock-keyword-face)
+                 :help-echo "Open the Spacemacs documentation in your browser."
+                 :mouse-face 'highlight
+                 :follow-link "\C-m"
+                 "https://develop.spacemacs.org/doc/DOCUMENTATION.html")
+  (insert " ")
+  (widget-create 'url-link
+                 :tag (propertize "Gitter Chat" 'face 'font-lock-keyword-face)
+                 :help-echo
+                 "Ask questions and chat with fellow users in our chat room."
+                 :mouse-face 'highlight
+                 :follow-link "\C-m"
+                 "https://gitter.im/syl20bnr/spacemacs")
+  (insert " ")
+  (widget-create 'push-button
+                 :help-echo "GPLv3 copying conditions."
+                 :action (lambda (&rest ignore)
+                           (find-file (concat spacemacs-start-directory "LICENSE"))
+                           (read-only-mode))
+                 :mouse-face 'highlight
+                 :follow-link "\C-m"
+                 (propertize "Licensing" 'face 'font-lock-keyword-face))
+  (let ((len (- (line-end-position)
+                (line-beginning-position))))
+    (spacemacs-buffer//center-line)
+    (setq spacemacs-buffer--buttons-position (- (line-end-position)
+                                              (line-beginning-position)
+                                              len)))
+  (insert "\n")
   (widget-create 'push-button
                  :help-echo "Update all ELPA packages to the latest versions."
                  :action (lambda (&rest ignore)
@@ -1275,24 +1275,34 @@ SEQ, START and END are the same arguments as for `cl-subseq'"
 
 (defun spacemacs-buffer//insert-recent-files (list-size)
   (unless recentf-mode (recentf-mode))
-  (setq spacemacs-buffer//recent-files-list
-        (let ((agenda-files (if (fboundp 'org-agenda-files)
-                                (mapcar #'expand-file-name (org-agenda-files))
-                              nil)))
-          (cl-delete-if (lambda (x)
-                          (or (when (and (bound-and-true-p org-directory) (file-exists-p org-directory))
-                                (member x (directory-files org-directory t)))
-                              (member x agenda-files)))
-                        recentf-list)))
-  (setq spacemacs-buffer//recent-files-list
-        (spacemacs//subseq spacemacs-buffer//recent-files-list 0 list-size))
-  (when (spacemacs-buffer//insert-file-list
-         (spacemacs-buffer||propertize-heading
-          (when dotspacemacs-startup-buffer-show-icons
-            (all-the-icons-octicon "history" :face 'font-lock-keyword-face :v-adjust -0.05))
-          "Recent Files:" "r")
-         spacemacs-buffer//recent-files-list)
-    (spacemacs-buffer||add-shortcut "r" "Recent Files:"))
+  (let ((agenda-files
+         (let ((default-directory
+                (or (bound-and-true-p org-directory) default-directory))
+               (files
+                (if (or (not (fboundp 'org-agenda-files))
+                        (eq 'autoload (car (symbol-function 'org-agenda-files))))
+                    (bound-and-true-p org-agenda-files)
+                  (org-agenda-files))))
+           (mapcar #'expand-file-name files)))
+        (ignore-directory (or (and (boundp 'org-directory)
+                                   (expand-file-name org-directory))
+                              ""))
+        (recent-files-list))
+    (cl-loop for rfile in recentf-list
+             while (length< recent-files-list list-size)
+             collect (let ((full-path (expand-file-name rfile)))
+                       (unless (or (string-prefix-p ignore-directory full-path)
+                                   (member full-path agenda-files))
+                         (add-to-list 'recent-files-list rfile t))))
+
+    (when (spacemacs-buffer//insert-file-list
+           (spacemacs-buffer||propertize-heading
+            (when dotspacemacs-startup-buffer-show-icons
+              (all-the-icons-octicon
+               "history" :face 'font-lock-keyword-face :v-adjust -0.05))
+            "Recent Files:" "r")
+           recent-files-list)
+      (spacemacs-buffer||add-shortcut "r" "Recent Files:")))
   (insert spacemacs-buffer-list-separator))
 
 (defun spacemacs-buffer//insert-recent-files-by-project (list-size)
@@ -1385,7 +1395,7 @@ SEQ, START and END are the same arguments as for `cl-subseq'"
           (spacemacs-buffer//insert-warnings))
          ((eq el 'recents) (spacemacs-buffer//insert-recent-files list-size))
          ((and (eq el 'recents-by-project)
-	       (fboundp 'projectile-mode))
+         (fboundp 'projectile-mode))
           (spacemacs-buffer//insert-recent-files-by-project list-size))
          ((eq el 'todos) (spacemacs-buffer//insert-todos list-size))
          ((eq el 'agenda) (spacemacs-buffer//insert-agenda list-size))
