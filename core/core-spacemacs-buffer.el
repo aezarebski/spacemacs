@@ -122,7 +122,13 @@ It's cleared when the idle timer runs.")
       (define-key map (kbd "8") 'spacemacs-buffer/jump-to-number-startup-list-line)
       (define-key map (kbd "9") 'spacemacs-buffer/jump-to-number-startup-list-line))
 
-    (define-key map [mouse-1] 'widget-button-click)
+    (define-key map [down-mouse-1] 'spacemacs-buffer//mouse-1)
+    (define-key map [mouse-1] 'ignore) ;; left button, avoid multiple clicks
+    (define-key map [mouse-2] 'ignore) ;; mid button
+    (define-key map [mouse-3] 'ignore) ;; right button
+    (define-key map [drag-mouse-1] 'ignore)
+    (define-key map [drag-mouse-2] 'ignore)
+    (define-key map [drag-mouse-3] 'ignore)
     (define-key map (kbd "RET") 'spacemacs-buffer/return)
 
     (define-key map [tab] 'widget-forward)
@@ -274,7 +280,6 @@ Returns height in units of line height with a minimum of 1."
                           (spacemacs-buffer//do-insert-startupify-lists)
                           (recentf-mode -1)
                           (line-number-at-pos)))
-              ;; (count-lines (point-min) (point-max)))
             (setq dotspacemacs-startup-buffer-show-icons icons)
             lines))
          ;; We determine the maximum available banner height by subtracting the
@@ -366,11 +371,11 @@ Right justified, based on the Spacemacs buffers window width."
       (spacemacs-buffer//center-line (length build-by))
       (insert "\n\n")
       (widget-create 'url-link
-                           :tag proudly-free
-                           :help-echo "What is free software?"
-                           :mouse-face 'highlight
-                           :follow-link "\C-m"
-                           "https://www.gnu.org/philosophy/free-sw.en.html")
+                     :tag proudly-free
+                     :help-echo "What is free software?"
+                     :mouse-face 'highlight
+                     :follow-link "\C-m"
+                     "https://www.gnu.org/philosophy/free-sw.en.html")
       (spacemacs-buffer//center-line (+ 2 (length proudly-free)))
       (when gplv3
         (insert "\n\n")
@@ -704,8 +709,8 @@ and the trailing whitespace."
 (defun spacemacs-buffer//widget-text-note-beg-pos ()
   (let (pos)
     (dolist (w spacemacs-buffer--note-widgets)
-     (when (eq (car w) 'text)
-       (setq pos (marker-position (widget-get w :from)))))
+      (when (eq (car w) 'text)
+        (setq pos (marker-position (widget-get w :from)))))
     pos))
 
 (defun spacemacs-buffer//notes-clear-notes-and-widgets ()
@@ -908,8 +913,8 @@ REAL-WIDTH: the real width of the line.  If the line contains an image, the size
                 (line-beginning-position))))
     (spacemacs-buffer//center-line)
     (setq spacemacs-buffer--buttons-position (- (line-end-position)
-                                              (line-beginning-position)
-                                              len)))
+                                                (line-beginning-position)
+                                                len)))
   (insert "\n")
   (widget-create 'push-button
                  :help-echo "Update all ELPA packages to the latest versions."
@@ -1274,27 +1279,40 @@ SEQ, START and END are the same arguments as for `cl-subseq'"
     (insert spacemacs-buffer-list-separator)))
 
 (defun spacemacs-buffer//insert-recent-files (list-size)
+  "Insert recent file entries to spacemacs-buffer.
+
+LIST-SIZE is specified in `dotspacemacs-startup-lists' for recent entries."
   (unless recentf-mode (recentf-mode))
-  (let ((agenda-files
-         (let ((default-directory
-                (or (bound-and-true-p org-directory) default-directory))
-               (files
-                (if (or (not (fboundp 'org-agenda-files))
-                        (eq 'autoload (car (symbol-function 'org-agenda-files))))
-                    (bound-and-true-p org-agenda-files)
-                  (org-agenda-files))))
+  (let (;; we need to remove `org-agenda-files' entries from recent files
+        (agenda-files
+         (when-let ((default-directory
+                      (or (bound-and-true-p org-directory) "~/org"))
+                    (files
+                     (when (bound-and-true-p org-agenda-files)
+                       (if (listp org-agenda-files)
+                           ;; if it's a list, we take that value directly
+                           org-agenda-files
+                         ;; but if it's a string, it must be file where the list
+                         ;; of agenda files are stored in that file and we have
+                         ;;to load `org-agenda' to process the list.
+                         (when (y-or-n-p "`org-agenda-files' is a string and \
+not a list. Load `org' and continue?")
+                           (require 'org)
+                           (org-agenda-files))))))
            (mapcar #'expand-file-name files)))
-        (ignore-directory (or (and (boundp 'org-directory)
-                                   (expand-file-name org-directory))
+        ;; we also need to skip sub-directories of `org-directory'
+        (ignore-directory (or (when (bound-and-true-p org-directory)
+                                (expand-file-name org-directory))
                               ""))
         (recent-files-list))
     (cl-loop for rfile in recentf-list
-             while (length< recent-files-list list-size)
-             collect (let ((full-path (expand-file-name rfile)))
-                       (unless (or (string-prefix-p ignore-directory full-path)
-                                   (member full-path agenda-files))
-                         (add-to-list 'recent-files-list rfile t))))
-
+             while (> list-size 0)
+             do (let ((full-path (expand-file-name rfile)))
+                  (unless (or (string-prefix-p ignore-directory full-path)
+                              (member full-path agenda-files))
+                    (cl-pushnew rfile recent-files-list)
+                    (setq list-size (1- list-size))))
+             finally do (setq recent-files-list (nreverse recent-files-list)))
     (when (spacemacs-buffer//insert-file-list
            (spacemacs-buffer||propertize-heading
             (when dotspacemacs-startup-buffer-show-icons
@@ -1377,7 +1395,8 @@ SEQ, START and END are the same arguments as for `cl-subseq'"
 (defun spacemacs-buffer//do-insert-startupify-lists ()
   "Insert the startup lists in the current buffer."
   (setq spacemacs-buffer--startup-list-nr 1)
-  (let ((dotspacemacs-startup-buffer-show-icons dotspacemacs-startup-buffer-show-icons))
+  (let ((dotspacemacs-startup-buffer-show-icons dotspacemacs-startup-buffer-show-icons)
+        (is-org-loaded (bound-and-true-p spacemacs-initialized)))
     (if (display-graphic-p)
         (unless (configuration-layer/package-used-p 'all-the-icons)
           (message "Package `all-the-icons' isn't installed")
@@ -1385,7 +1404,7 @@ SEQ, START and END are the same arguments as for `cl-subseq'"
       (setq dotspacemacs-startup-buffer-show-icons nil))
     (when dotspacemacs-startup-buffer-show-icons
       (require 'all-the-icons))
-    (dolist (els (append '(warnings) dotspacemacs-startup-lists))
+    (dolist (els (if is-org-loaded (append '(warnings) dotspacemacs-startup-lists) '(warnings)))
       (let ((el (or (car-safe els) els))
             (list-size (or (cdr-safe els)
                            spacemacs-buffer-startup-lists-length)))
@@ -1395,7 +1414,7 @@ SEQ, START and END are the same arguments as for `cl-subseq'"
           (spacemacs-buffer//insert-warnings))
          ((eq el 'recents) (spacemacs-buffer//insert-recent-files list-size))
          ((and (eq el 'recents-by-project)
-         (fboundp 'projectile-mode))
+               (fboundp 'projectile-mode))
           (spacemacs-buffer//insert-recent-files-by-project list-size))
          ((eq el 'todos) (spacemacs-buffer//insert-todos list-size))
          ((eq el 'agenda) (spacemacs-buffer//insert-agenda list-size))
@@ -1452,6 +1471,18 @@ SEQ, START and END are the same arguments as for `cl-subseq'"
     (with-demoted-errors "spacemacs buffer error: %s"
       (search-forward "[")
       (left-char 2))))
+
+(defun spacemacs-buffer//mouse-1 (event)
+  "Action to open widget button at mouse click.
+
+NOTE: This is reserved only to use in spacemacs-buffer. It is a slimmed down
+version of `widget-button-press' since `widget-button-click' doesn't work."
+  (interactive "e")
+  (when (widget-event-point event)
+    (let ((pos (widget-event-point event)))
+      (goto-char pos)
+      (when-let ((button (get-char-property pos 'button)))
+        (widget-apply-action pos)))))
 
 (defun spacemacs-buffer/jump-to-number-startup-list-line ()
   "Jump to the startup list line with the typed number.
@@ -1562,10 +1593,10 @@ If a prefix argument is given, switch to it in an other, possibly new window."
             (force-mode-line-update)
             (spacemacs-buffer-mode)))
         (if save-line
-            (progn (goto-char (point-min))
-                   (forward-line (1- save-line))
-                   (forward-to-indentation 0))
-          (spacemacs-buffer/goto-link-line)))
+           (progn (goto-char (point-min))
+                  (forward-line (1- save-line))
+                  (forward-to-indentation 0))
+         (spacemacs-buffer/goto-link-line)))
       (if current-prefix-arg
           (switch-to-buffer-other-window spacemacs-buffer-name)
         (switch-to-buffer spacemacs-buffer-name))
